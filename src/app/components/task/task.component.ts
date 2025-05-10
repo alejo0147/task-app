@@ -1,26 +1,44 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter } from '@angular/core';
 import { Task } from '../../models/task';
 import Swal from 'sweetalert2';
+import { Router, RouterModule } from '@angular/router';
+import { TaskService } from '../../services/task.service';
+import { SharingDataService } from '../../services/sharing-data.service';
 
 @Component({
   selector: 'task',
   standalone: true,
-  imports: [],
+  imports: [
+    RouterModule
+  ],
   templateUrl: './task.component.html',
   styleUrl: './task.component.css'
 })
 export class TaskComponent {
 
-  @Input() tasks: Task[] = [];
-  @Output() idTaskEventEmitter = new EventEmitter<number>();
-  @Output() taskEventEmitter = new EventEmitter<Task>();
+  tasks: Task[] = [];
+
+
+
+  constructor(
+    private shraringData: SharingDataService,
+    private service: TaskService,
+    private router: Router
+  ) {
+    if (this.router.getCurrentNavigation()?.extras.state) {
+      this.tasks = this.router.getCurrentNavigation()?.extras.state!['tasks'];
+      console.log('Tareas recibidas:', this.tasks);
+    } else {
+      this.service.findAll().subscribe(tasks => {
+        this.tasks = tasks;
+        console.log('Tareas obtenidas del servicio:', this.tasks);
+      });
+    }
+  }
 
   deleteTask(id: number): void {
-
     const taskToDelete = this.tasks.find(task => task.id === id);
-
     const taskTitle = taskToDelete?.title || 'esta tarea';
-
     Swal.fire({
       title: `Seguro que quieres eliminar la tarea ${taskTitle} ?`,
       text: "No podrás revertir esto!",
@@ -31,7 +49,7 @@ export class TaskComponent {
       confirmButtonText: "Si, eliminar"
     }).then((result) => {
       if (result.isConfirmed) {
-        this.idTaskEventEmitter.emit(id);
+        this.shraringData.idTaskEventEmitter.emit(id);
         console.log('Tarea eliminada:', id);
         Swal.fire({
           title: "Eliminado!",
@@ -43,7 +61,7 @@ export class TaskComponent {
   }
 
   editTask(task: Task): void {
-    this.taskEventEmitter.emit(task);
+    this.router.navigate(['/tasks/edit', task.id], {state: {task}});
     console.log('Tarea editada:', task);
   }
 

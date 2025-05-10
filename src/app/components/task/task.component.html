@@ -1,3 +1,14 @@
+
+
+<div class="d-flex justify-content-between">
+  <button class="btn btn-primary" [routerLink]="['/tasks/create']">
+    <span class="fw-bold">
+      Nueva tarea
+      <i class="fas fa-plus-circle text-white"></i>
+    </span>
+  </button>
+</div>
+
 <div class="card shadow-sm border-2 mt-4">
   <div class="card-header">
     <h5 class="card-title text-center fw-bold">Lista de Tareas</h5>
@@ -11,7 +22,7 @@
         <tr>
           <th class="text-center">Título</th>
           <th class="text-center">Descripción</th>
-          <th class="text-end">Acción</th>
+          <th class="text-center">Acción</th>
         </tr>
       </thead>
       <tbody>
@@ -19,7 +30,7 @@
         <tr>
           <td>{{ task.title }}</td>
           <td>{{ task.description }}</td>
-          <td class="text-end">
+          <td class="text-center">
             <button class="btn btn-danger mx-1" title="Eliminar tarea" (click)="deleteTask(task.id)">
               <i class="fas fa-trash text-white"> </i>
             </button>

@@ -1,30 +1,41 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter } from '@angular/core';
 import { Task } from '../../models/task';
 import { FormsModule, NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { Router, RouterModule } from '@angular/router';
+import { SharingDataService } from '../../services/sharing-data.service';
 
 
 @Component({
   selector: 'task-form',
   standalone: true,
   imports: [
-    FormsModule
+    FormsModule,
+    RouterModule
   ],
   templateUrl: './task-form.component.html',
   styleUrl: './task-form.component.css'
 })
 export class TaskFormComponent {
 
-  @Input() task: Task;
-  @Output() newTaskEventEmitter = new EventEmitter<Task>();
+  task: Task;
 
-  constructor() {
-    this.task = new Task();
+
+  constructor(
+    private router: Router,
+    private sharingData: SharingDataService
+  ) {
+    if (this.router.getCurrentNavigation()?.extras.state) {
+      this.task = this.router.getCurrentNavigation()?.extras.state!['task'];
+      console.log('Tareas recibidas:', this.task);
+    } else {
+      this.task = new Task();
+    }
   }
 
   onSubmit(taskForm: NgForm): void {
     if (taskForm.valid) {
-      this.newTaskEventEmitter.emit(this.task);
+      this.sharingData.newTaskEventEmitter.emit(this.task);
       console.log('Formulario enviado:', this.task);
       Swal.fire({
         title: "Guardado!",
