@@ -1,0 +1,39 @@
+<div class="card shadow-sm border-2 mt-4">
+  <div class="card-header">
+    <h5 class="card-title text-center fw-bold">Lista de Tareas</h5>
+  </div>
+  <div class="card-body">
+    @if (tasks.length == 0) {
+    <div class="alert alert-info fw-bold text-success">No hay tareas disponibles!</div>
+    } @else {
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th class="text-center">Título</th>
+          <th class="text-center">Descripción</th>
+          <th class="text-end">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (task of tasks; track $index) {
+        <tr>
+          <td>{{ task.title }}</td>
+          <td>{{ task.description }}</td>
+          <td class="text-end">
+            <button class="btn btn-danger mx-1" title="Eliminar tarea" (click)="deleteTask(task.id)">
+              <i class="fas fa-trash text-white"> </i>
+            </button>
+
+            <button class="btn btn-warning mx-1" title="Editar tarea" (click)="editTask(task)">
+              <i class="fas fa-pencil text-white"> </i>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    }
+  </div>
+
+</div>
