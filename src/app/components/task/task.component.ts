@@ -62,9 +62,9 @@ export class TaskComponent implements OnInit {
     });
   }
 
-  editTask(task: Task): void {
-    this.router.navigate(['/tasks/edit', task.id]);
-    console.log('Tarea editada:', task);
-  }
+  // editTask(task: Task): void {
+  //   this.router.navigate(['/tasks/edit', task.id]);
+  //   console.log('Tarea editada:', task);
+  // }
 
 }
