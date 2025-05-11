@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Task } from '../../models/task';
 import Swal from 'sweetalert2';
 import { Router, RouterModule } from '@angular/router';
@@ -14,11 +14,9 @@ import { SharingDataService } from '../../services/sharing-data.service';
   templateUrl: './task.component.html',
   styleUrl: './task.component.css'
 })
-export class TaskComponent {
+export class TaskComponent implements OnInit {
 
   tasks: Task[] = [];
-
-
 
   constructor(
     private shraringData: SharingDataService,
@@ -27,12 +25,16 @@ export class TaskComponent {
   ) {
     if (this.router.getCurrentNavigation()?.extras.state) {
       this.tasks = this.router.getCurrentNavigation()?.extras.state!['tasks'];
-      console.log('Tareas recibidas:', this.tasks);
-    } else {
+      console.log('Tareas obtenidas de la navegación:', this.tasks);
+    }
+  }
+
+  ngOnInit(): void {
+    if (this.tasks === undefined || this.tasks === null || this.tasks.length === 0) {
       this.service.findAll().subscribe(tasks => {
-        this.tasks = tasks;
-        console.log('Tareas obtenidas del servicio:', this.tasks);
-      });
+          this.tasks = tasks;
+          console.log('Tareas obtenidas del servicio:', this.tasks);
+        });
     }
   }
 
@@ -61,7 +63,7 @@ export class TaskComponent {
   }
 
   editTask(task: Task): void {
-    this.router.navigate(['/tasks/edit', task.id], {state: {task}});
+    this.router.navigate(['/tasks/edit', task.id]);
     console.log('Tarea editada:', task);
   }
 

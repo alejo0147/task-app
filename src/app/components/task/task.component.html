@@ -31,13 +31,21 @@
           <td>{{ task.title }}</td>
           <td>{{ task.description }}</td>
           <td class="text-center">
-            <button class="btn btn-danger mx-1" title="Eliminar tarea" (click)="deleteTask(task.id)">
+            <button 
+              class="btn btn-danger mx-1" 
+              title="Eliminar tarea" 
+              (click)="deleteTask(task.id)"
+            >
               <i class="fas fa-trash text-white"> </i>
             </button>
 
-            <button class="btn btn-warning mx-1" title="Editar tarea" (click)="editTask(task)">
+            <!-- <button 
+              class="btn btn-warning mx-1" 
+              title="Editar tarea" 
+              [routerLink]="['/tasks/edit', task.id]"
+            >
               <i class="fas fa-pencil text-white"> </i>
-            </button>
+            </button> -->
           </td>
         </tr>
         }

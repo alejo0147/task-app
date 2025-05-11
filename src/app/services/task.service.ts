@@ -1,28 +1,52 @@
 import { Injectable } from '@angular/core';
 import { Task } from '../models/task';
 import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
 
-  private tasks: Task[] = [
-    { id: 1, title: 'Tarea 1', description: 'Descripción de la tarea 1' },
-    { id: 2, title: 'Tarea 2', description: 'Descripción de la tarea 2' },
-    { id: 3, title: 'Tarea 3', description: 'Descripción de la tarea 3' },
-    { id: 4, title: 'Tarea 4', description: 'Descripción de la tarea 4' },
-    { id: 5, title: 'Tarea 5', description: 'Descripción de la tarea 5' }
-  ];
+  private tasks: Task[] = [];
 
-  private url: string = 'http://localhost:8080/tasks';
+  private apiUrl = "http://localhost:8080/api/tasks";
+
+  private httpOptions = {
+    headers: new HttpHeaders({
+      'Authorization': `Bearer VALIDO-TOKEN`,
+      'Content-Type': 'application/json'
+    })
+  };
 
   constructor(private http: HttpClient) { }
 
   findAll(): Observable<Task[]> {
-    return of(this.tasks);
-    // return this.http.get<Task[]>(this.url);
+    // return of(this.tasks);
+    return this.http.get<Task[]>(this.apiUrl, this.httpOptions);
+  }
+
+  findById(id: number): Observable<Task> {
+    // return of(this.tasks.find(task => task.id === id));
+    return this.http.get<Task>(`${this.apiUrl}/${id}`, this.httpOptions);
+  } 
+
+  create(task: Task): Observable<Task> {
+    // this.tasks.push(task);
+    // return of(task);
+    return this.http.post<Task>(this.apiUrl, task, this.httpOptions);
+  }
+
+  update(task: Task): Observable<Task> {
+    // this.tasks = this.tasks.map(t => (t.id === task.id) ? { ...task } : t);
+    // return of(task);
+    return this.http.put<Task>(`${this.apiUrl}/${task.id}`, task, this.httpOptions);
+  }
+
+  delete(id: number): Observable<void> {
+    // this.tasks = this.tasks.filter(task => task.id !== id);
+    // return of();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, this.httpOptions);
   }
 
 }

@@ -31,25 +31,45 @@ export class TaskAppComponent implements OnInit {
     this.service.findAll().subscribe(tasks => this.tasks = tasks);
     this.addTask();
     this.removeTask();
+    this.findTaskById();
   }
 
   addTask(): void {
     this.sharingData.newTaskEventEmitter.subscribe((task: Task) => {
       if (task.id > 0) {
-        this.tasks = this.tasks.map(t => (t.id === task.id) ? { ...task } : t);
+        // this.service.update(task).subscribe(taskUpdated => { {...taskUpdated} ↓
+          this.tasks = this.tasks.map(t => (t.id === task.id) ? { ...task } : t);
+
+          this.router.navigate(['/tasks'], { state: { tasks: this.tasks } });
+        // });
       } else {
-        this.tasks = [...this.tasks, { ...task, id: this.tasks.length + 1 }];
+        this.service.create(task).subscribe(taskNew => {
+          // this.tasks = [...this.tasks, { ...task, id: this.tasks.length + 1 }]; 
+          this.tasks = [...this.tasks, { ...taskNew }]; 
+
+          this.router.navigate(['/tasks'], { state: { tasks: this.tasks } });
+        });
       }
-      this.router.navigate(['/tasks'], { state: { tasks: this.tasks } });
+      
+      // this.router.navigate(['/tasks']);
     });
   }
 
   removeTask(): void {
     this.sharingData.idTaskEventEmitter.subscribe((id: number) => {
-      this.tasks = this.tasks.filter(task => task.id !== id);
-      this.router.navigate(['/tasks/create'], { skipLocationChange: true }).then(() => {
-        this.router.navigate(['/tasks'], { state: { tasks: this.tasks } });
+      this.service.delete(id).subscribe(() => {
+        this.tasks = this.tasks.filter(task => task.id !== id);
+        this.router.navigate(['/tasks/create'], { skipLocationChange: true }).then(() => {
+          this.router.navigate(['/tasks'], { state: { tasks: this.tasks } });
+        });
       });
+    });
+  }
+
+  findTaskById() {
+    this.sharingData.findTaskByIdEventEmitter.subscribe(id => {
+      const task = this.tasks.find(task => task.id === id);
+      this.sharingData.selectTaskEventEmitter.emit(task);
     });
   }
 

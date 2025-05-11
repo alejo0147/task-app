@@ -1,4 +1,3 @@
-
 <div class="d-flex justify-content-between">
   <button class="btn btn-primary" [routerLink]="['/tasks']">
     <span class="fw-bold">
@@ -13,74 +12,65 @@
     <h5 class="card-title text-center fw-bold">Formulario de Tareas</h5>
   </div>
   <div class="card-body">
-   <form (ngSubmit)="onSubmit(taskForm)" class="form-group" #taskForm="ngForm" novalidate>
+    <form (ngSubmit)="onSubmit(taskForm)" class="form-group" #taskForm="ngForm" novalidate>
 
-  <div>
-    <label for="title" class="fw-bold mt-2">Título</label>
-    <input
-      type="text"
-      placeholder="Ingrese título de la tarea"
-      id="title"
-      [(ngModel)]="task.title"
-      name="title"
-      class="form-control"
-      minlength="3"
-      #title="ngModel"
-      required>
+      <div>
+        <label for="title" class="fw-bold mt-2">Título</label>
+        <input type="text" placeholder="Ingrese título de la tarea" id="title" [(ngModel)]="task.title" name="title"
+          class="form-control" minlength="3" #title="ngModel" required>
 
-      @if (title.invalid && (title.dirty || title.touched)) {
+        @if (title.invalid && (title.dirty || title.touched)) {
         @if (title.errors!['required']) {
-          <div class="text-danger mt-1" role="alert">
-            El título es requerido.
-          </div>
+        <div class="text-danger mt-1" role="alert">
+          El título es requerido.
+        </div>
         }
         @if (title.errors!['minlength']) {
-          <div class="text-danger mt-1" role="alert">
-            El título debe tener al menos {{ title.errors!['minlength'].requiredLength }} caracteres.
-          </div>
+        <div class="text-danger mt-1" role="alert">
+          El título debe tener al menos {{ title.errors!['minlength'].requiredLength }} caracteres.
+        </div>
         }
-      }
-  </div>
+        }
+      </div>
 
-  <div>
-    <label for="description" class="fw-bold mt-2">Descripción</label>
-    <input
-      type="text"
-      placeholder="Ingrese description de la tarea"
-      id="description"
-      [(ngModel)]="task.description"
-      name="description"
-      class="form-control"
-      minlength="3"
-      #description="ngModel"
-      required>
+      <div>
+        <label for="description" class="fw-bold mt-2">Descripción</label>
+        <input type="text" placeholder="Ingrese description de la tarea" id="description" [(ngModel)]="task.description"
+          name="description" class="form-control" minlength="3" #description="ngModel" required>
 
-      @if (description.invalid && (description.dirty || description.touched)) {
+        @if (description.invalid && (description.dirty || description.touched)) {
         @if (description.errors!['required']) {
-          <div class="text-danger mt-1" role="alert">
-            La descripción es requerida.
-          </div>
+        <div class="text-danger mt-1" role="alert">
+          La descripción es requerida.
+        </div>
         }
         @if (description.errors!['minlength']) {
-          <div class="text-danger mt-1" role="alert">
-            La descripción debe tener al menos {{ description.errors!['minlength'].requiredLength }} caracteres.
-          </div>
+        <div class="text-danger mt-1" role="alert">
+          La descripción debe tener al menos {{ description.errors!['minlength'].requiredLength }} caracteres.
+        </div>
         }
-      }
-  </div>
+        }
+      </div>
 
-  <div>
-    <button class="btn btn-primary mt-2" type="submit" [disabled]="taskForm.invalid">
-      <span class="fw-bold"> {{ (task.id > 0) ? 'Editar' : 'Agregar' }} <i class=" {{ (task.id > 0) ? 'fas fa-pencil  text-white' : 'fas fa-plus-circle  text-white' }}"></i></span>
-    </button>
+      <div>
+        @if (task.id > 0) {
+        <button class="btn btn-primary mt-2" type="submit" [disabled]="taskForm.invalid">
+          <span class="fw-bold"> Editar <i class="fas fa-pencil  text-white"></i></span>
+        </button>
+        } @else {
+        <button class="btn btn-primary mt-2" type="submit" [disabled]="taskForm.invalid">
+          <span class="fw-bold"> Agregar <i class="fas fa-plus-circle  text-white"></i></span>
+        </button>
+        }
 
-    <button class="btn btn-danger mt-2 mx-2" type="button" (click)="clearForm(taskForm)">
-      <span class="fw-bold"> Limpiar <i class="fas fa-eraser text-white"></i></span>
-    </button>
 
-  </div>
+        <button class="btn btn-danger mt-2 mx-2" type="button" (click)="clearForm(taskForm)">
+          <span class="fw-bold"> Limpiar <i class="fas fa-eraser text-white"></i></span>
+        </button>
 
-</form>
+      </div>
+
+    </form>
   </div>
 
 </div>

@@ -1,9 +1,10 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Task } from '../../models/task';
 import { FormsModule, NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SharingDataService } from '../../services/sharing-data.service';
+import { TaskService } from '../../services/task.service';
 
 
 @Component({
@@ -16,21 +17,32 @@ import { SharingDataService } from '../../services/sharing-data.service';
   templateUrl: './task-form.component.html',
   styleUrl: './task-form.component.css'
 })
-export class TaskFormComponent {
+export class TaskFormComponent implements OnInit {
 
   task: Task;
 
-
   constructor(
-    private router: Router,
-    private sharingData: SharingDataService
+    private route: ActivatedRoute,
+    private sharingData: SharingDataService,
+    private service: TaskService,
   ) {
-    if (this.router.getCurrentNavigation()?.extras.state) {
-      this.task = this.router.getCurrentNavigation()?.extras.state!['task'];
-      console.log('Tareas recibidas:', this.task);
-    } else {
-      this.task = new Task();
-    }
+    this.task = new Task();
+  }
+
+  ngOnInit(): void {
+    this.sharingData.selectTaskEventEmitter.subscribe(task => this.task = task);
+
+    this.route.paramMap.subscribe(params => {
+      const id: number = +(params.get('id') || '0');
+
+      if (id > 0) {
+         this.sharingData.findTaskByIdEventEmitter.emit(id);
+        // this.service.findById(id).subscribe(task => {
+        //   this.task = task;
+        //   console.log('Tarea encontrada:', task);
+        // });
+      }
+    });
   }
 
   onSubmit(taskForm: NgForm): void {

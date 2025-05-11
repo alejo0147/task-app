@@ -8,6 +8,8 @@ export class SharingDataService {
 
   private _newTaskEventEmitter: EventEmitter<Task> = new EventEmitter();
   private _idTaskEventEmitter: EventEmitter<number> = new EventEmitter();
+  private _findTaskByIdEventEmitter: EventEmitter<number> = new EventEmitter();
+  private _selectTaskEventEmitter: EventEmitter<Task> = new EventEmitter();
 
   constructor() { }
 
@@ -17,6 +19,14 @@ export class SharingDataService {
 
   get idTaskEventEmitter(): EventEmitter<number> {
     return this._idTaskEventEmitter;
+  }
+
+  get findTaskByIdEventEmitter(): EventEmitter<number> {
+    return this._findTaskByIdEventEmitter;
+  }
+
+  get selectTaskEventEmitter(): EventEmitter<Task> {
+    return this._selectTaskEventEmitter;
   }
 
 }
