@@ -1,32 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { AuthServiceService } from './auth-service.service';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
-import { HttpResponse } from '@angular/common/http';
 
 describe('AuthServiceService', () => {
   let service: AuthServiceService;
-  let httpMock: HttpTestingController;
   let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule],
+      imports: [RouterTestingModule],
       providers: [AuthServiceService]
     });
 
     service = TestBed.inject(AuthServiceService);
-    httpMock = TestBed.inject(HttpTestingController);
     router = TestBed.inject(Router);
 
-    // Limpiar localStorage antes de cada prueba
-    localStorage.clear();
-  });
-
-  afterEach(() => {
-    // Verificar que no hay solicitudes HTTP pendientes
-    httpMock.verify();
+    // Limpiar sessionStorage antes de cada prueba
+    sessionStorage.clear();
   });
 
   it('should be created', () => {
@@ -34,111 +25,64 @@ describe('AuthServiceService', () => {
   });
 
   describe('login()', () => {
-    it('should make a POST request to login endpoint', () => {
-      const mockUsername = 'testuser';
-      const mockPassword = 'testpass';
-      const mockToken = 'mock-token-123';
-
-      service.login(mockUsername, mockPassword).subscribe();
-
-      const req = httpMock.expectOne(`${service['apiUrl']}/login`);
-      expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ username: mockUsername, password: mockPassword });
-
-      // Simular respuesta exitosa con token
-      req.flush({}, {
-        headers: { 'Authorization': mockToken },
-        status: 200,
-        statusText: 'OK'
-      });
+    it('should return true for correct credentials', () => {
+      const result = service.login('admin', '1234');
+      expect(result).toBeTrue();
+      expect(service.isLoggedIn()).toBeTrue();
+      expect(service.getUsername()).toBe('admin');
     });
 
-    it('should save token when login is successful', () => {
-      const mockToken = 'mock-token-123';
-      const saveTokenSpy = spyOn(service as any, 'saveToken').and.callThrough();
-
-      service.login('test', 'test').subscribe(() => {
-        expect(saveTokenSpy).toHaveBeenCalledWith(mockToken);
-        expect(service.getToken()).toBe(mockToken);
-      });
-
-      const req = httpMock.expectOne(`${service['apiUrl']}/login`);
-      req.flush({}, {
-        headers: { 'Authorization': mockToken },
-        status: 200,
-        statusText: 'OK'
-      });
-    });
-
-    it('should not save token when login fails', () => {
-      const saveTokenSpy = spyOn(service as any, 'saveToken');
-
-      service.login('test', 'test').subscribe({
-        error: () => {
-          expect(saveTokenSpy).not.toHaveBeenCalled();
-          expect(service.getToken()).toBeNull();
-        }
-      });
-
-      const req = httpMock.expectOne(`${service['apiUrl']}/login`);
-      req.flush(null, {
-        status: 401,
-        statusText: 'Unauthorized'
-      });
-    });
-  });
-
-  describe('saveToken()', () => {
-    it('should store token in localStorage', () => {
-      const mockToken = 'test-token-123';
-      
-      (service as any).saveToken(mockToken);
-      
-      expect(localStorage.getItem('auth_token')).toBe(mockToken);
+    it('should return false for incorrect credentials', () => {
+      const result = service.login('wrong', 'credentials');
+      expect(result).toBeFalse();
+      expect(service.isLoggedIn()).toBeFalse();
     });
   });
 
   describe('getToken()', () => {
-    it('should return null when no token is stored', () => {
+    it('should return null if no token is stored', () => {
       expect(service.getToken()).toBeNull();
     });
 
-    it('should return token when it exists in localStorage', () => {
-      const mockToken = 'test-token-123';
-      localStorage.setItem('auth_token', mockToken);
-      
-      expect(service.getToken()).toBe(mockToken);
+    it('should return a token after successful login', () => {
+      service.login('admin', '1234');
+      const token = service.getToken();
+      expect(token).toContain('VALIDO-TOKEN-');
     });
   });
 
-  describe('isLoggedIn()', () => {
-    it('should return false when no token is present', () => {
-      expect(service.isLoggedIn()).toBeFalse();
+  describe('getUsername()', () => {
+    it('should return the username after login', () => {
+      service.login('admin', '1234');
+      expect(service.getUsername()).toBe('admin');
     });
 
-    it('should return true when token is present', () => {
-      localStorage.setItem('auth_token', 'test-token');
-      expect(service.isLoggedIn()).toBeTrue();
+    it('should return null if not logged in', () => {
+      expect(service.getUsername()).toBeNull();
     });
   });
 
   describe('logout()', () => {
-    it('should remove token from localStorage and navigate to login', () => {
+    it('should clear session storage and navigate to /login', () => {
       const navigateSpy = spyOn(router, 'navigate');
-      localStorage.setItem('auth_token', 'test-token');
-      
+      service.login('admin', '1234');
+
       service.logout();
-      
-      expect(localStorage.getItem('auth_token')).toBeNull();
+
+      expect(service.getToken()).toBeNull();
+      expect(service.getUsername()).toBeNull();
       expect(navigateSpy).toHaveBeenCalledWith(['/login']);
     });
+  });
 
-    it('should navigate to login even if no token was stored', () => {
-      const navigateSpy = spyOn(router, 'navigate');
-      
-      service.logout();
-      
-      expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+  describe('isLoggedIn()', () => {
+    it('should return false when not logged in', () => {
+      expect(service.isLoggedIn()).toBeFalse();
+    });
+
+    it('should return true after successful login', () => {
+      service.login('admin', '1234');
+      expect(service.isLoggedIn()).toBeTrue();
     });
   });
 });

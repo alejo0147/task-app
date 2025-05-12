@@ -9,14 +9,7 @@ describe('TaskService', () => {
   let service: TaskService;
   let httpMock: HttpTestingController;
   const apiUrl = 'http://localhost:8080/api/tasks';
-  
-  const expectedHeaders = {
-    headers: new HttpHeaders({
-      'Authorization': 'Bearer VALIDO-TOKEN',
-      'Content-Type': 'application/json'
-    })
-  };
-  
+
   const mockTasks: Task[] = [
     { id: 1, title: 'Task 1', description: 'Description 1' },
     { id: 2, title: 'Task 2', description: 'Description 2' }
@@ -27,13 +20,17 @@ describe('TaskService', () => {
       imports: [HttpClientTestingModule],
       providers: [TaskService]
     });
-    
+
     service = TestBed.inject(TaskService);
     httpMock = TestBed.inject(HttpTestingController);
+
+    // Establecer el token esperado en sessionStorage
+    sessionStorage.setItem('auth_token', 'VALIDO-TOKEN');
   });
 
   afterEach(() => {
-    httpMock.verify(); // Verifica que no haya solicitudes pendientes
+    httpMock.verify();
+    sessionStorage.clear(); // Limpia el token después de cada prueba
   });
 
   it('should be created', () => {
@@ -53,7 +50,7 @@ describe('TaskService', () => {
 
   it('should return a task by id on findById()', () => {
     const taskId = 1;
-    
+
     service.findById(taskId).subscribe(task => {
       expect(task).toEqual(mockTasks[0]);
     });
@@ -67,7 +64,7 @@ describe('TaskService', () => {
   it('should create a new task on create()', () => {
     const newTask: Task = { id: 0, title: 'New Task', description: 'New Description' };
     const createdTask: Task = { ...newTask, id: 3 };
-    
+
     service.create(newTask).subscribe(task => {
       expect(task).toEqual(createdTask);
     });
@@ -81,7 +78,7 @@ describe('TaskService', () => {
 
   it('should update a task on update()', () => {
     const taskToUpdate: Task = { id: 1, title: 'Updated Task', description: 'Updated Description' };
-    
+
     service.update(taskToUpdate).subscribe(task => {
       expect(task).toEqual(taskToUpdate);
     });
@@ -95,7 +92,7 @@ describe('TaskService', () => {
 
   it('should delete a task on delete()', () => {
     const taskId = 1;
-    
+
     service.delete(taskId).subscribe(response => {
       expect(response).toBeNull();
     });

@@ -1,11 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
 
 import { LoginComponent } from './login.component';
 import { AuthServiceService } from '../../services/auth-service.service';
-import { HttpResponse } from '@angular/common/http';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -14,21 +12,17 @@ describe('LoginComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    // Crear spies para los servicios
     mockAuthService = jasmine.createSpyObj('AuthServiceService', ['login']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        LoginComponent,
-        ReactiveFormsModule
-      ],
+      imports: [LoginComponent, ReactiveFormsModule],
       providers: [
         { provide: AuthServiceService, useValue: mockAuthService },
         { provide: Router, useValue: mockRouter }
       ]
     }).compileComponents();
-    
+
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -56,66 +50,48 @@ describe('LoginComponent', () => {
       username: 'testuser',
       password: 'password123'
     });
-    
     expect(component.loginForm.valid).toBeTrue();
   });
 
   it('should call authService.login and navigate to /tasks on successful login', () => {
-    // Configurar el spy para que devuelva un Observable exitoso
-    mockAuthService.login.and.returnValue(of({ body: true } as unknown as HttpResponse<Object>));
-    
-    // Completar el formulario
+    mockAuthService.login.and.returnValue(true);
+
     component.loginForm.setValue({
-      username: 'testuser',
-      password: 'password123'
+      username: 'admin',
+      password: '1234'
     });
-    
-    // Ejecutar el método onSubmit
+
     component.onSubmit();
-    
-    // Verificar que se llamó al servicio con los valores correctos
-    expect(mockAuthService.login).toHaveBeenCalledWith('testuser', 'password123');
-    
-    // Verificar que se navegó a la ruta correcta
+
+    expect(mockAuthService.login).toHaveBeenCalledWith('admin', '1234');
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/tasks']);
-    
-    // Verificar que no hay mensaje de error
     expect(component.errorMessage).toBeNull();
   });
 
   it('should set error message on failed login', () => {
-    // Configurar el spy para que devuelva un error
-    mockAuthService.login.and.returnValue(throwError(() => new Error('Auth failed')));
-    
-    // Completar el formulario
+    mockAuthService.login.and.returnValue(false);
+
     component.loginForm.setValue({
-      username: 'testuser',
-      password: 'wrongpassword'
+      username: 'admin',
+      password: 'wrongpass'
     });
-    
-    // Ejecutar el método onSubmit
+
     component.onSubmit();
-    
-    // Verificar que se llamó al servicio con los valores correctos
-    expect(mockAuthService.login).toHaveBeenCalledWith('testuser', 'wrongpassword');
-    
-    // Verificar que NO se navegó a ninguna ruta
+
+    expect(mockAuthService.login).toHaveBeenCalledWith('admin', 'wrongpass');
     expect(mockRouter.navigate).not.toHaveBeenCalled();
-    
-    // Verificar que se estableció el mensaje de error
     expect(component.errorMessage).toBe('Credenciales incorrectas');
   });
 
   it('should not call login service if form is invalid', () => {
-    // El formulario está vacío por defecto, así que es inválido
-    
-    // Ejecutar el método onSubmit
+    component.loginForm.setValue({
+      username: '',
+      password: ''
+    });
+
     component.onSubmit();
-    
-    // Verificar que no se llamó al servicio
+
     expect(mockAuthService.login).not.toHaveBeenCalled();
-    
-    // Verificar que no se navegó a ninguna ruta
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 });

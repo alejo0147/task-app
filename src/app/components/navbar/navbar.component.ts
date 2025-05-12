@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Task } from '../../models/task';
+import { AuthServiceService } from '@app/services/auth-service.service';
 
 @Component({
   selector: 'navbar',
@@ -14,5 +15,12 @@ import { Task } from '../../models/task';
 export class NavbarComponent {
 
   @Input() tasks: Task[] = [];
+
+  constructor(private authService: AuthServiceService, private router: Router) { }
+
+  logout(): void {
+  this.authService.logout();
+  this.router.navigate(['/login']);
+}
 
 }

@@ -19,7 +19,7 @@ export class LoginComponent {
   loginForm!: FormGroup;
   errorMessage: string | null = null;
 
-   constructor(
+  constructor(
     private fb: FormBuilder,
     private authService: AuthServiceService,
     private router: Router
@@ -31,12 +31,16 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
-      this.authService.login(username!, password!).subscribe({
-        next: () => this.router.navigate(['/tasks']),
-        error: () => this.errorMessage = 'Credenciales incorrectas'
-      });
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    const { username, password } = this.loginForm.value;
+    
+    if (this.authService.login(username, password)) {
+      this.router.navigate(['/tasks']); // Redirigir a la página principal
+    } else {
+      this.errorMessage = 'Credenciales incorrectas';
     }
   }
 
